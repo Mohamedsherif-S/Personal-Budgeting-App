@@ -1,6 +1,6 @@
 class Transaction:
     """
-    Represents financial transactions.
+    Represents a financial transaction.
     """
 
     def create_transaction(self, user_id, amount, t_type, category_id, date, description, external_id=None):

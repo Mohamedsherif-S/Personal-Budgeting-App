@@ -5,7 +5,7 @@ class Report:
 
     def request_report(self, user_id, start, end, r_type):
         if self.validate_date_range(start, end):
-            print("Report generated")
+            print(f"  [Report] Report generated for user '{user_id}' ({r_type}) from {start} to {end}.")
 
     def validate_date_range(self, start, end):
         return True

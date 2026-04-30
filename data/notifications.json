@@ -1,0 +1,12 @@
+[
+    {
+        "type": "new_user",
+        "user_id": "U001",
+        "date": "today"
+    },
+    {
+        "type": "new_user",
+        "user_id": "U001",
+        "date": "today"
+    }
+]

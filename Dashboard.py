@@ -4,7 +4,7 @@ class Dashboard:
     """
 
     def load_dashboard(self, user_id):
-        print("Dashboard loaded for user {user_id}")
+        print(f"Dashboard loaded for user {user_id}")
 
     def request_dashboard(self, user_id):
         return {}
