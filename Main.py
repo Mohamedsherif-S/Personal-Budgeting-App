@@ -10,7 +10,6 @@ from Goal           import Goal, GoalManager
 from Notification   import Notification
 from Report         import Report
 from Transection    import Transaction
-from BankSync       import BankSync
 from Menu           import Menu
 
 def main():
@@ -23,13 +22,13 @@ def main():
     report       = Report()
     dashboard    = Dashboard()
     external_bank = ExternalBankSystem()
-    bank_sync    = BankSync(user, external_bank, transaction, category, budget, notification)
     goal_manager = GoalManager(goal, notification)
 
     menu = Menu(
-        user=user, bank_sync=bank_sync, goal_manager=goal_manager,
+        user=user, goal_manager=goal_manager,
         transaction=transaction, budget=budget, report=report,
-        dashboard=dashboard, category=category
+        dashboard=dashboard, category=category,
+        bank_sync=external_bank
     )
     menu.show_welcome()
 
