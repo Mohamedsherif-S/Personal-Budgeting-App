@@ -1,0 +1,74 @@
+[
+    {
+        "user_id": "U002",
+        "amount": 1500.0,
+        "type": "income",
+        "category_id": "general",
+        "date": "2026-05-03",
+        "description": "Salary deposit",
+        "external_id": "EXT001"
+    },
+    {
+        "user_id": "U002",
+        "amount": 1500.0,
+        "type": "income",
+        "category_id": "general",
+        "date": "2026-05-03",
+        "description": "Salary deposit",
+        "external_id": "EXT001"
+    },
+    {
+        "user_id": "U002",
+        "amount": 45.0,
+        "type": "expense",
+        "category_id": "general",
+        "date": "2026-05-03",
+        "description": "Grocery shopping",
+        "external_id": "EXT002"
+    },
+    {
+        "user_id": "U002",
+        "amount": 45.0,
+        "type": "expense",
+        "category_id": "general",
+        "date": "2026-05-03",
+        "description": "Grocery shopping",
+        "external_id": "EXT002"
+    },
+    {
+        "user_id": "U002",
+        "amount": 120.0,
+        "type": "expense",
+        "category_id": "general",
+        "date": "2026-05-03",
+        "description": "Electricity bill",
+        "external_id": "EXT003"
+    },
+    {
+        "user_id": "U002",
+        "amount": 120.0,
+        "type": "expense",
+        "category_id": "general",
+        "date": "2026-05-03",
+        "description": "Electricity bill",
+        "external_id": "EXT003"
+    },
+    {
+        "user_id": "U003",
+        "amount": 100.0,
+        "type": "j",
+        "category_id": "hnj",
+        "date": "nk",
+        "description": "jkn",
+        "external_id": null
+    },
+    {
+        "user_id": "U001",
+        "amount": 100.0,
+        "type": "income",
+        "category_id": "food",
+        "date": "20-2-2006",
+        "description": "dasda",
+        "external_id": null
+    }
+]

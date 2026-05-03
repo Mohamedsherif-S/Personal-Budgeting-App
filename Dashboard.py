@@ -1,10 +1,6 @@
 class Dashboard:
-    """
-    Represents dashboard view.
-    """
-
     def load_dashboard(self, user_id):
-        print("Dashboard loaded for user {user_id}")
+        pass
 
     def request_dashboard(self, user_id):
         return {}

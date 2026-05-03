@@ -1,20 +1,16 @@
 class Report:
-    """
-    Generates reports.
-    """
-
     def request_report(self, user_id, start, end, r_type):
         if self.validate_date_range(start, end):
-            print("Report generated")
+            print(f"  [Report] {r_type} | {start} → {end}")
 
     def validate_date_range(self, start, end):
-        return True
+        return start <= end
 
     def calculate_total_income(self, transactions):
-        return sum(t["amount"] for t in transactions if t["type"] == "income")
+        return sum(t["amount"] for t in transactions if t.get("type") == "income")
 
     def calculate_total_expense(self, transactions):
-        return sum(t["amount"] for t in transactions if t["type"] == "expense")
+        return sum(t["amount"] for t in transactions if t.get("type") == "expense")
 
     def categorize_expenses(self, transactions, categories):
         return {}

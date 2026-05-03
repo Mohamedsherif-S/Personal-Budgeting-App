@@ -1,8 +1,4 @@
 class Budget:
-    """
-    Represents budgeting logic.
-    """
-
     def check_budget_limit(self, user_id, category_id, amount):
         return True
 

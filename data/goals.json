@@ -1,0 +1,11 @@
+[
+    {
+        "goal_id": "G_TEST001",
+        "user_id": "U001",
+        "name": "Test Goal",
+        "target": 1000.0,
+        "deadline": "2026-12-31",
+        "current": 0.0,
+        "completed": false
+    }
+]
