@@ -70,5 +70,23 @@
         "date": "20-2-2006",
         "description": "dasda",
         "external_id": null
+    },
+    {
+        "user_id": "U002",
+        "amount": 1000.0,
+        "type": "income",
+        "category_id": "general",
+        "date": "2006-05-04",
+        "description": "food",
+        "external_id": null
+    },
+    {
+        "user_id": "U002",
+        "amount": 200.0,
+        "type": "expense",
+        "category_id": "food",
+        "date": "2026-05-04",
+        "description": "food",
+        "external_id": null
     }
 ]

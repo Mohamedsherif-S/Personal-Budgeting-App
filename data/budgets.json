@@ -1,0 +1,9 @@
+[
+    {
+        "user_id": "U002",
+        "category_id": "food",
+        "limit": 200.0,
+        "period": "monthly",
+        "alert": 90.0
+    }
+]

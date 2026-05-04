@@ -1,19 +1,21 @@
-import re
 import datetime
 import Storage
 
+
 class Menu:
-    def __init__(self, user, bank_sync, goal_manager, transaction, budget, report, dashboard, category):
+    def __init__(self, user, admin, goal_manager, transaction, budget, report, category):
         self.user         = user
-        self.bank_sync    = bank_sync
+        self.admin        = admin
         self.goal_manager = goal_manager
         self.transaction  = transaction
         self.budget       = budget
         self.report       = report
-        self.dashboard    = dashboard
         self.category     = category
         self.session      = None
 
+    # ══════════════════════════════════════════════
+    #  Welcome / Auth screens
+    # ══════════════════════════════════════════════
     def show_welcome(self):
         while True:
             print("\n" + "═" * 45)
@@ -29,6 +31,33 @@ class Menu:
             elif choice == "0": print("\n  Goodbye! 👋\n"); break
             else: print("  Invalid choice.")
 
+    def _register(self):
+        print("\n── Register ───────────────────────────────────────")
+        username = input("  Username : ").strip()
+        email    = input("  Email    : ").strip()
+        password = input("  Password : ").strip()
+        phone    = input("  Phone    : ").strip()
+        if self.user.register(username, email, password, phone, self.admin):
+            print("  ✓ Account created — logging you in...")
+            self.session = self.user.generate_session(self.user.user_id)
+            self.show_main_menu()
+
+    def _login(self):
+        print("\n── Login ──────────────────────────────────────────")
+        email    = input("  Email    : ").strip()
+        password = input("  Password : ").strip()
+        matched  = self.user.find_by_email(email)
+        if not matched:
+            print("  Email not found.")
+            return
+        self.user.load_from_dict(matched)
+        if self.user.login(email, password):
+            self.session = f"session_{self.user.user_id}"
+            self.show_main_menu()
+
+    # ══════════════════════════════════════════════
+    #  Main menu
+    # ══════════════════════════════════════════════
     def show_main_menu(self):
         while True:
             balance = self.user.get_user_balance(self.user.user_id)
@@ -53,40 +82,11 @@ class Menu:
             elif choice == "0": self.session = None; print("  Logged out."); break
             else: print("  Invalid choice.")
 
-    def _register(self):
-        print("\n── Register ───────────────────────────────────────")
-        username = input("  Username : ").strip()
-        email    = input("  Email    : ").strip()
-        password = input("  Password : ").strip()
-        phone    = input("  Phone    : ").strip()
-        from Admin import Admin
-        if self.user.register(username, email, password, phone, Admin()):
-            print("  ✓ Account created — logging you in...")
-            self.session = self.user.generate_session(self.user.user_id)
-            self.show_main_menu()
-
-    def _login(self):
-        print("\n── Login ──────────────────────────────────────────")
-        email    = input("  Email    : ").strip()
-        password = input("  Password : ").strip()
-        users    = Storage.load_users()
-        matched  = next((d for d in users.values() if d.get("email") == email), None)
-        if not matched:
-            print("  Email not found.")
-            return
-        self.user.user_id  = matched["user_id"]
-        self.user.username = matched["username"]
-        self.user.email    = matched["email"]
-        self.user.password = matched["password"]
-        self.user.phone    = matched.get("phone", "")
-        self.user.balance  = matched.get("balance", 0.0)
-        if self.user.login(email, password):
-            self.session = f"session_{self.user.user_id}"
-            self.show_main_menu()
-
+    # ══════════════════════════════════════════════
+    #  Transactions
+    # ══════════════════════════════════════════════
     def _add_transaction(self):
         print("\n── Add Transaction ────────────────────────────────")
-        self.user.initiate_transaction(self.user.user_id)
         cats = self.category.get_categories_list(self.user.user_id)
         print(f"  Categories: {', '.join(cats)}")
         try:
@@ -120,9 +120,12 @@ class Menu:
         for t in txns:
             sign = "+" if t.get("type") == "income" else "-"
             print(f"  {t.get('date','?'):<12} {t.get('type','?'):<8} "
-                  f"{t.get('category_id','?'):<12} {sign}${t.get('amount',0):>8.2f}  "
+                  f"{t.get('category_id','?'):<12} {sign}${float(t.get('amount',0)):>8.2f}  "
                   f"{t.get('description','')}")
 
+    # ══════════════════════════════════════════════
+    #  Budgets
+    # ══════════════════════════════════════════════
     def _budget_menu(self):
         while True:
             print("\n── Budget Menu ────────────────────────────────────")
@@ -136,37 +139,36 @@ class Menu:
 
     def _create_budget(self):
         print("\n── Create Budget ──────────────────────────────────")
-        self.user.initiate_budget_creation(self.user.user_id)
         cats = self.category.get_categories_list(self.user.user_id)
         print(f"  Categories: {', '.join(cats)}")
         try:
-            category_id = input("  Category           : ").strip()
-            limit       = float(input("  Limit ($)          : ").strip())
-            period      = input("  Period (monthly/weekly): ").strip()
-            alert       = float(input("  Alert at (%)       : ").strip())
-            budgets     = Storage.load_budgets()
-            budgets.append({
-                "user_id": self.user.user_id,
-                "category_id": category_id,
-                "limit": limit,
-                "period": period,
-                "alert": alert
-            })
-            Storage.save_budgets(budgets)
+            category_id = input("  Category               : ").strip().lower()
+            limit       = float(input("  Limit ($)              : ").strip())
+            period      = input("  Period (monthly/weekly): ").strip().lower()
+            alert       = float(input("  Alert at (%)           : ").strip())
+            if not self.budget.validate_budget_data(limit, period, alert):
+                return
+            self.budget.create_budget(self.user.user_id, category_id, limit, period, alert)
             print("  ✓ Budget created.")
         except ValueError:
             print("  Invalid input.")
 
     def _view_budgets(self):
-        budgets = [b for b in Storage.load_budgets() if b.get("user_id") == self.user.user_id]
+        budgets = self.budget.get_all_budgets(self.user.user_id)
         if not budgets:
             print("  No budgets found.")
             return
-        print(f"\n  {'Category':<14} {'Limit':>8} {'Period':<10} {'Alert%':>7}")
-        print("  " + "─" * 44)
+        print(f"\n  {'Category':<14} {'Limit':>8} {'Spent':>8} {'Remaining':>10} {'Period':<10} {'Alert%':>7}")
+        print("  " + "─" * 60)
         for b in budgets:
-            print(f"  {b['category_id']:<14} ${b['limit']:>7.2f} {b['period']:<10} {b['alert']:>6.0f}%")
+            spent     = self.budget.get_current_spending(self.user.user_id, b["category_id"])
+            remaining = self.budget.calculate_remaining(b["limit"], spent)
+            print(f"  {b['category_id']:<14} ${b['limit']:>7.2f} ${spent:>7.2f} ${remaining:>9.2f} "
+                  f"{b['period']:<10} {b['alert']:>6.0f}%")
 
+    # ══════════════════════════════════════════════
+    #  Goals
+    # ══════════════════════════════════════════════
     def _goals_menu(self):
         while True:
             print("\n── Goals Menu ─────────────────────────────────────")
@@ -201,6 +203,9 @@ class Menu:
         except ValueError:
             print("  Invalid amount.")
 
+    # ══════════════════════════════════════════════
+    #  Reports
+    # ══════════════════════════════════════════════
     def _reports_menu(self):
         print("\n── Reports ────────────────────────────────────────")
         print("  Format: YYYY-MM-DD")
@@ -228,17 +233,22 @@ class Menu:
             for t in txns:
                 sign = "+" if t.get("type") == "income" else "-"
                 print(f"  {t.get('date','?'):<12} {t.get('type','?'):<8} "
-                      f"{t.get('category_id','?'):<12} {sign}${t.get('amount',0):>8.2f}  "
+                      f"{t.get('category_id','?'):<12} {sign}${float(t.get('amount',0)):>8.2f}  "
                       f"{t.get('description','')}")
 
+    # ══════════════════════════════════════════════
+    #  Dashboard  ← FIX: amount cast to float
+    # ══════════════════════════════════════════════
     def _dashboard(self):
         print("\n── Dashboard ──────────────────────────────────────")
         txns    = [t for t in Storage.load_transactions() if t.get("user_id") == self.user.user_id]
         goals   = [g for g in Storage.load_goals()        if g.get("user_id") == self.user.user_id]
-        budgets = [b for b in Storage.load_budgets()      if b.get("user_id") == self.user.user_id]
-        income  = sum(t["amount"] for t in txns if t.get("type") == "income")
-        expense = sum(t["amount"] for t in txns if t.get("type") == "expense")
+        budgets = self.budget.get_all_budgets(self.user.user_id)
+
+        income  = sum(float(t.get("amount", 0)) for t in txns if t.get("type") == "income")
+        expense = sum(float(t.get("amount", 0)) for t in txns if t.get("type") == "expense")
         balance = self.user.get_user_balance(self.user.user_id)
+
         print(f"\n  {'─'*40}")
         print(f"  💰 Balance       : ${balance:.2f}")
         print(f"  📈 Total Income  : +${income:.2f}")
@@ -247,11 +257,12 @@ class Menu:
         done = sum(1 for g in goals if g.get("completed"))
         print(f"  🎯 Goals         : {len(goals)} total ({done} completed)")
         print(f"  {'─'*40}")
+
         recent = txns[-5:]
         if recent:
             print("\n  Last 5 Transactions:")
             for t in reversed(recent):
                 sign = "+" if t.get("type") == "income" else "-"
-                print(f"    {t.get('date','?')}  {sign}${t.get('amount',0):.2f}  {t.get('description','')}")
+                print(f"    {t.get('date','?')}  {sign}${float(t.get('amount',0)):.2f}  {t.get('description','')}")
         else:
             print("\n  No transactions yet.")

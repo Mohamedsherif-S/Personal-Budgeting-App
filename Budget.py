@@ -1,42 +1,43 @@
+import Storage
+
+
 class Budget:
-    def check_budget_limit(self, user_id, category_id, amount):
-        return True
-
-    def get_current_spending(self, user_id, category_id, month):
-        return 0
-
-    def calculate_remaining(self, limit, current, amount=0):
-        return limit - (current + amount)
-
     def create_budget(self, user_id, category_id, limit, period, alert):
+        budgets = Storage.load_budgets()
+        budgets.append({
+            "user_id":     user_id,
+            "category_id": category_id,
+            "limit":       float(limit),
+            "period":      period.strip().lower(),
+            "alert":       float(alert),
+        })
+        Storage.save_budgets(budgets)
         return True
 
     def validate_budget_data(self, limit, period, alert):
-        return limit > 0
+        if limit <= 0:
+            print("  Limit must be greater than 0.")
+            return False
+        if period.strip().lower() not in ("monthly", "weekly"):
+            print("  Period must be 'monthly' or 'weekly'.")
+            return False
+        if not (0 < alert <= 100):
+            print("  Alert must be between 1 and 100.")
+            return False
+        return True
 
-    def update_budget(self, budget_id, limit, alert):
-        pass
+    def get_all_budgets(self, user_id):
+        return [b for b in Storage.load_budgets() if b.get("user_id") == user_id]
 
-    def save_budget(self, user_id, category_id, limit, period, alert):
-        pass
+    def get_current_spending(self, user_id, category_id):
+        txns = Storage.load_transactions()
+        return sum(
+            float(t.get("amount", 0))
+            for t in txns
+            if t.get("user_id") == user_id
+            and t.get("category_id") == category_id
+            and t.get("type") == "expense"
+        )
 
-    def calculate_current_spending(self, user_id, category_id, period):
-        return 0
-
-    def calculate_remaining_budget(self, limit, current):
+    def calculate_remaining(self, limit, current):
         return limit - current
-
-    def set_alert_threshold(self, alert):
-        pass
-
-    def get_all_budgets(self, user_id, period):
-        return []
-
-    def fetch_budgets(self, user_id, period):
-        return []
-
-    def calculate_budget_status(self, budget_id, current, limit):
-        return current / limit
-
-    def get_budgets_by_period(self, user_id, start, end):
-        return []
