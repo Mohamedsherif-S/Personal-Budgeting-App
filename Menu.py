@@ -1,9 +1,13 @@
 import datetime
 import Storage
 
-
 class Menu:
+    """
+    Main controller class for the application UI. 
+    Connects users, transactions, budgets, and goals through a CLI menu.
+    """
     def __init__(self, user, admin, goal_manager, transaction, budget, report, category):
+        """Initializes the menu with all necessary service instances."""
         self.user         = user
         self.admin        = admin
         self.goal_manager = goal_manager
@@ -16,7 +20,9 @@ class Menu:
     # ══════════════════════════════════════════════
     #  Welcome / Auth screens
     # ══════════════════════════════════════════════
+    
     def show_welcome(self):
+        """Displays the initial landing screen for Register or Login."""
         while True:
             print("\n" + "═" * 45)
             print("  💰  Personal Budget Manager")
@@ -32,24 +38,29 @@ class Menu:
             else: print("  Invalid choice.")
 
     def _register(self):
+        """Handles user registration and creates a new session on success."""
         print("\n── Register ───────────────────────────────────────")
         username = input("  Username : ").strip()
         email    = input("  Email    : ").strip()
         password = input("  Password : ").strip()
         phone    = input("  Phone    : ").strip()
+        
         if self.user.register(username, email, password, phone, self.admin):
             print("  ✓ Account created — logging you in...")
             self.session = self.user.generate_session(self.user.user_id)
             self.show_main_menu()
 
     def _login(self):
+        """Authenticates user via email and password."""
         print("\n── Login ──────────────────────────────────────────")
         email    = input("  Email    : ").strip()
         password = input("  Password : ").strip()
         matched  = self.user.find_by_email(email)
+        
         if not matched:
             print("  Email not found.")
             return
+            
         self.user.load_from_dict(matched)
         if self.user.login(email, password):
             self.session = f"session_{self.user.user_id}"
@@ -58,7 +69,9 @@ class Menu:
     # ══════════════════════════════════════════════
     #  Main menu
     # ══════════════════════════════════════════════
+    
     def show_main_menu(self):
+        """Core navigation hub once the user is logged in."""
         while True:
             balance = self.user.get_user_balance(self.user.user_id)
             print(f"\n{'═'*45}")
@@ -85,7 +98,9 @@ class Menu:
     # ══════════════════════════════════════════════
     #  Transactions
     # ══════════════════════════════════════════════
+    
     def _add_transaction(self):
+        """Inputs and saves a new transaction (Income or Expense)."""
         print("\n── Add Transaction ────────────────────────────────")
         cats = self.category.get_categories_list(self.user.user_id)
         print(f"  Categories: {', '.join(cats)}")
@@ -95,10 +110,14 @@ class Menu:
             category_id = input("  Category              : ").strip()
             date        = input("  Date (YYYY-MM-DD)     : ").strip()
             description = input("  Description           : ").strip()
+            
+            # Default to today's date if left empty
             if not date:
                 date = datetime.date.today().isoformat()
+            
             if not self.category.validate_category(category_id):
                 category_id = "general"
+                
             saved = self.transaction.create_transaction(
                 self.user.user_id, amount, t_type, category_id, date, description
             )
@@ -109,12 +128,15 @@ class Menu:
             print("  Invalid input.")
 
     def _view_transactions(self):
+        """Fetches and displays the last 10 transactions for the user."""
         print("\n── Recent Transactions ────────────────────────────")
         txns = [t for t in Storage.load_transactions()
                 if t.get("user_id") == self.user.user_id][-10:]
+        
         if not txns:
             print("  No transactions found.")
             return
+            
         print(f"\n  {'Date':<12} {'Type':<8} {'Category':<12} {'Amount':>10}  Description")
         print("  " + "─" * 62)
         for t in txns:
@@ -126,7 +148,9 @@ class Menu:
     # ══════════════════════════════════════════════
     #  Budgets
     # ══════════════════════════════════════════════
+    
     def _budget_menu(self):
+        """Sub-menu for budget-specific actions."""
         while True:
             print("\n── Budget Menu ────────────────────────────────────")
             print("  1. Create Budget")
@@ -138,26 +162,31 @@ class Menu:
             elif choice == "0": break
 
     def _create_budget(self):
+        """Takes input to set a spending limit for a specific category."""
         print("\n── Create Budget ──────────────────────────────────")
         cats = self.category.get_categories_list(self.user.user_id)
         print(f"  Categories: {', '.join(cats)}")
         try:
-            category_id = input("  Category               : ").strip().lower()
-            limit       = float(input("  Limit ($)              : ").strip())
+            category_id = input("  Category                : ").strip().lower()
+            limit       = float(input("  Limit ($)               : ").strip())
             period      = input("  Period (monthly/weekly): ").strip().lower()
-            alert       = float(input("  Alert at (%)           : ").strip())
+            alert       = float(input("  Alert at (%)            : ").strip())
+            
             if not self.budget.validate_budget_data(limit, period, alert):
                 return
+                
             self.budget.create_budget(self.user.user_id, category_id, limit, period, alert)
             print("  ✓ Budget created.")
         except ValueError:
             print("  Invalid input.")
 
     def _view_budgets(self):
+        """Displays all user budgets with real-time spending and remaining balance."""
         budgets = self.budget.get_all_budgets(self.user.user_id)
         if not budgets:
             print("  No budgets found.")
             return
+            
         print(f"\n  {'Category':<14} {'Limit':>8} {'Spent':>8} {'Remaining':>10} {'Period':<10} {'Alert%':>7}")
         print("  " + "─" * 60)
         for b in budgets:
@@ -169,7 +198,9 @@ class Menu:
     # ══════════════════════════════════════════════
     #  Goals
     # ══════════════════════════════════════════════
+    
     def _goals_menu(self):
+        """Sub-menu for managing financial goals."""
         while True:
             print("\n── Goals Menu ─────────────────────────────────────")
             print("  1. Create Goal")
@@ -183,6 +214,7 @@ class Menu:
             elif choice == "0": break
 
     def _create_goal(self):
+        """Creates a new saving target with a deadline."""
         print("\n── Create Goal ────────────────────────────────────")
         try:
             name     = input("  Goal name         : ").strip()
@@ -194,6 +226,7 @@ class Menu:
             print("  Invalid input.")
 
     def _contribute_goal(self):
+        """Add funds to an existing goal by ID."""
         print("\n── Contribute to Goal ─────────────────────────────")
         self.goal_manager.list_goals(self.user.user_id)
         goal_id = input("  Goal ID : ").strip()
@@ -206,27 +239,35 @@ class Menu:
     # ══════════════════════════════════════════════
     #  Reports
     # ══════════════════════════════════════════════
+    
     def _reports_menu(self):
+        """Generates financial summaries or detailed lists within a date range."""
         print("\n── Reports ────────────────────────────────────────")
         print("  Format: YYYY-MM-DD")
         start  = input("  Start date : ").strip()
-        end    = input("  End   date : ").strip()
+        end    = input("  End    date : ").strip()
         r_type = input("  Type (summary/detailed): ").strip() or "summary"
+        
         txns   = [t for t in Storage.load_transactions()
                   if t.get("user_id") == self.user.user_id
                   and start <= t.get("date", "") <= end]
+                  
         self.report.request_report(self.user.user_id, start, end, r_type)
+        
         if not txns:
             print(f"  No transactions found between {start} and {end}.")
             return
+            
         income  = self.report.calculate_total_income(txns)
         expense = self.report.calculate_total_expense(txns)
+        
         print(f"\n  {'─'*40}")
         print(f"  Transactions  : {len(txns)}")
         print(f"  Total Income  : +${income:.2f}")
         print(f"  Total Expense : -${expense:.2f}")
         print(f"  Net           :  ${income - expense:+.2f}")
         print(f"  {'─'*40}")
+        
         if r_type == "detailed":
             print(f"\n  {'Date':<12} {'Type':<8} {'Category':<12} {'Amount':>10}  Description")
             print("  " + "─" * 62)
@@ -237,9 +278,11 @@ class Menu:
                       f"{t.get('description','')}")
 
     # ══════════════════════════════════════════════
-    #  Dashboard  ← FIX: amount cast to float
+    #  Dashboard
     # ══════════════════════════════════════════════
+    
     def _dashboard(self):
+        """A quick overview of finances, goals, and recent activities."""
         print("\n── Dashboard ──────────────────────────────────────")
         txns    = [t for t in Storage.load_transactions() if t.get("user_id") == self.user.user_id]
         goals   = [g for g in Storage.load_goals()        if g.get("user_id") == self.user.user_id]
@@ -263,6 +306,6 @@ class Menu:
             print("\n  Last 5 Transactions:")
             for t in reversed(recent):
                 sign = "+" if t.get("type") == "income" else "-"
-                print(f"    {t.get('date','?')}  {sign}${float(t.get('amount',0)):.2f}  {t.get('description','')}")
+                print(f"  {t.get('date','?')}  {sign}${float(t.get('amount',0)):.2f}  {t.get('description','')}")
         else:
             print("\n  No transactions yet.")
