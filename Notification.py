@@ -1,4 +1,4 @@
-class class Notification:
+class Notification:
     """Handles system notifications and user alerts."""
 
     def create_notification(self, user_id, n_type, ref_id, data=None):

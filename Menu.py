@@ -17,9 +17,6 @@ class Menu:
         self.category     = category
         self.session      = None
 
-    # ══════════════════════════════════════════════
-    #  Welcome / Auth screens
-    # ══════════════════════════════════════════════
     
     def show_welcome(self):
         """Displays the initial landing screen for Register or Login."""
@@ -65,10 +62,6 @@ class Menu:
         if self.user.login(email, password):
             self.session = f"session_{self.user.user_id}"
             self.show_main_menu()
-
-    # ══════════════════════════════════════════════
-    #  Main menu
-    # ══════════════════════════════════════════════
     
     def show_main_menu(self):
         """Core navigation hub once the user is logged in."""
@@ -95,9 +88,6 @@ class Menu:
             elif choice == "0": self.session = None; print("  Logged out."); break
             else: print("  Invalid choice.")
 
-    # ══════════════════════════════════════════════
-    #  Transactions
-    # ══════════════════════════════════════════════
     
     def _add_transaction(self):
         """Inputs and saves a new transaction (Income or Expense)."""
@@ -145,9 +135,6 @@ class Menu:
                   f"{t.get('category_id','?'):<12} {sign}${float(t.get('amount',0)):>8.2f}  "
                   f"{t.get('description','')}")
 
-    # ══════════════════════════════════════════════
-    #  Budgets
-    # ══════════════════════════════════════════════
     
     def _budget_menu(self):
         """Sub-menu for budget-specific actions."""
@@ -195,9 +182,6 @@ class Menu:
             print(f"  {b['category_id']:<14} ${b['limit']:>7.2f} ${spent:>7.2f} ${remaining:>9.2f} "
                   f"{b['period']:<10} {b['alert']:>6.0f}%")
 
-    # ══════════════════════════════════════════════
-    #  Goals
-    # ══════════════════════════════════════════════
     
     def _goals_menu(self):
         """Sub-menu for managing financial goals."""
@@ -236,9 +220,6 @@ class Menu:
         except ValueError:
             print("  Invalid amount.")
 
-    # ══════════════════════════════════════════════
-    #  Reports
-    # ══════════════════════════════════════════════
     
     def _reports_menu(self):
         """Generates financial summaries or detailed lists within a date range."""
@@ -277,9 +258,6 @@ class Menu:
                       f"{t.get('category_id','?'):<12} {sign}${float(t.get('amount',0)):>8.2f}  "
                       f"{t.get('description','')}")
 
-    # ══════════════════════════════════════════════
-    #  Dashboard
-    # ══════════════════════════════════════════════
     
     def _dashboard(self):
         """A quick overview of finances, goals, and recent activities."""

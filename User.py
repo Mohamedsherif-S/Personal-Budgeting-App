@@ -15,8 +15,6 @@ class User:
         self.password = password
         self.phone    = phone
         self.balance  = 0.0
-
-    # ── Registration ────────────────────────────────────────────────────────
     
     def register(self, username, email, password, phone, admin):
         """
@@ -62,8 +60,6 @@ class User:
     def _hash_password(self, password):
         """Secures the password using SHA-256 hashing."""
         return hashlib.sha256(password.encode()).hexdigest()
-
-    # ── Login ────────────────────────────────────────────────────────────────
     
     def find_by_email(self, email):
         """Searches the database for a user matching the provided email."""
@@ -91,7 +87,6 @@ class User:
         print("  [User] Login successful.")
         return f"session_{self.user_id}"
 
-    # ── Balance ──────────────────────────────────────────────────────────────
     
     def get_user_balance(self, user_id):
         """Retrieves the latest balance for a specific user from storage."""
@@ -114,7 +109,6 @@ class User:
             Storage.save_users(users)
         print(f"  [User] Balance → ${self.balance:.2f}")
 
-    # ── Helpers ──────────────────────────────────────────────────────────────
     
     def _to_dict(self):
         """Converts user object attributes into a dictionary for JSON storage."""
