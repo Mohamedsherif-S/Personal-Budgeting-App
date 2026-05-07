@@ -4,7 +4,10 @@
 
 ### A CLI-based personal finance tracking application built with Python
 
-
+[![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![JSON](https://img.shields.io/badge/Storage-JSON-F7DF1E?style=for-the-badge&logo=json&logoColor=black)](https://www.json.org)
+[![SOLID](https://img.shields.io/badge/Principles-SOLID-00B4D8?style=for-the-badge)](https://en.wikipedia.org/wiki/SOLID)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
 **CS251 — Introduction to Software Engineering | Spring 2025/2026**  
 Cairo University · Faculty of Computers and Artificial Intelligence
@@ -132,6 +135,8 @@ Register a new account, then explore all features from the main menu.
 
 ---
 
+## 📸 Screenshots
+
 <table>
   <tr>
     <td align="center"><b>🔐 Login Screen</b></td>
@@ -158,6 +163,8 @@ Register a new account, then explore all features from the main menu.
     <td><img src="screenshots/goals.png" width="400"/></td>
   </tr>
 </table>
+
+> 💡 Add your screenshots to a `screenshots/` folder in the repo root to display them here.
 
 ---
 
